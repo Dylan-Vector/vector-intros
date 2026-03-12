@@ -41,12 +41,23 @@ export default function Home() {
   const [roleType, setRoleType] = useState('founding_pmm')
   const [linkedinUrl, setLinkedinUrl] = useState('')
   const [transcript, setTranscript] = useState('')
+  const [resumeB64, setResumeB64] = useState(null)
+  const [resumeName, setResumeName] = useState('')
   const [extracted, setExtracted] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const canGenerate = transcript.trim().length > 100 && clientName.trim() && roleName.trim()
   const roleConfig = ROLE_CONFIGS[roleType]
+
+  function handleResumeUpload(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    setResumeName(file.name)
+    const reader = new FileReader()
+    reader.onload = () => setResumeB64(reader.result.split(',')[1])
+    reader.readAsDataURL(file)
+  }
 
   async function handleGenerate() {
     setLoading(true)
@@ -55,7 +66,7 @@ export default function Home() {
       const res = await fetch('/api/extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transcript, clientName, roleName, roleType, linkedinUrl }),
+        body: JSON.stringify({ transcript, clientName, roleName, roleType, linkedinUrl, resumeB64 }),
       })
       const data = await res.json()
       if (!res.ok || data.error) {
@@ -164,6 +175,24 @@ export default function Home() {
                 {transcript.split(' ').length.toLocaleString()} words
               </div>
             )}
+          </div>
+
+          <div style={{ marginBottom: 22 }}>
+            <label style={s.label}>Resume <span style={{ color: '#2A4030', textTransform: 'none', fontWeight: 400 }}>(optional — PDF)</span></label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+              <div style={{
+                background: '#0C1410', border: '1px solid #1A2B1E', borderRadius: 4,
+                padding: '8px 16px', fontSize: 12, color: '#4A9B5A', letterSpacing: '0.04em',
+                whiteSpace: 'nowrap'
+              }}>
+                {resumeName ? '✓ Change file' : 'Upload PDF'}
+              </div>
+              {resumeName
+                ? <span style={{ fontSize: 12, color: '#6A9B74' }}>{resumeName}</span>
+                : <span style={{ fontSize: 12, color: '#2A4030' }}>No file selected</span>
+              }
+              <input type="file" accept="application/pdf" onChange={handleResumeUpload} style={{ display: 'none' }} />
+            </label>
           </div>
 
           {error && (

@@ -17,7 +17,7 @@ const ROLE_CONFIGS = {
 
 export async function POST(req) {
   try {
-    const { transcript, clientName, roleName, roleType, linkedinUrl } = await req.json();
+    const { transcript, clientName, roleName, roleType, linkedinUrl, resumeB64 } = await req.json();
 
     if (!transcript || !clientName || !roleName) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -27,8 +27,8 @@ export async function POST(req) {
 
     const systemPrompt = `You are an expert recruiter at Vector Search Inc., a precision hiring firm for AI and infrastructure companies.
 
-Extract structured data from this call transcript to populate a candidate introduction for ${clientName} - ${roleName}.
-
+Extract structured data from the call transcript${resumeB64 ? " and resume PDF" : ""} to populate a candidate introduction for ${clientName} - ${roleName}.
+${resumeB64 ? "\nUse the resume for factual/structural accuracy (titles, dates, education, metrics). Use the transcript for motivation, personality, and anything said verbatim. The transcript takes priority where they conflict.\n" : ""}
 Return ONLY raw JSON, no markdown, no code fences, nothing else:
 {
   "candidate": {
@@ -73,16 +73,25 @@ Return ONLY raw JSON, no markdown, no code fences, nothing else:
 
 Rules: short hyphens only (no em/en dashes), tight punchy language, write like a sharp recruiter.`;
 
+    // Build user content - add resume PDF if provided
+    const userContent = resumeB64
+      ? [
+          {
+            type: "document",
+            source: { type: "base64", media_type: "application/pdf", data: resumeB64 },
+          },
+          {
+            type: "text",
+            text: `Transcript:\n\n${transcript}${linkedinUrl ? `\n\nLinkedIn: ${linkedinUrl}` : ""}`,
+          },
+        ]
+      : `Transcript:\n\n${transcript}${linkedinUrl ? `\n\nLinkedIn: ${linkedinUrl}` : ""}`;
+
     const message = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       system: systemPrompt,
-      messages: [
-        {
-          role: "user",
-          content: `Transcript:\n\n${transcript}${linkedinUrl ? `\n\nLinkedIn: ${linkedinUrl}` : ""}`,
-        },
-      ],
+      messages: [{ role: "user", content: userContent }],
     });
 
     const text = message.content[0].type === "text" ? message.content[0].text : "";

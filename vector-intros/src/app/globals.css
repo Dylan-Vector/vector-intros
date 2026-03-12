@@ -1,0 +1,30 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: #0A0F0B;
+  color: #E8F0E9;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #2A4030;
+}
+
+select option {
+  background: #0F1A11;
+  color: #E8F0E9;
+}
+
+@media print {
+  body > * { display: none !important; }
+  #print-area { display: block !important; }
+}

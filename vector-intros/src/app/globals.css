@@ -25,6 +25,12 @@ select option {
 }
 
 @media print {
-  body > * { display: none !important; }
-  #print-area { display: block !important; }
+  body {
+    background: white !important;
+  }
+  .no-print { display: none !important; }
+  #print-area {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
 }

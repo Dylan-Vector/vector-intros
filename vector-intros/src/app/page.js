@@ -208,7 +208,6 @@ export default function Home() {
             <div className="doc-header" style={{ background: '#0C1410', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <VectorLogo height={30} />
-                <span style={{ color: 'white', fontWeight: 700, fontSize: 14, letterSpacing: '0.12em' }}>VECTOR</span>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ color: '#1AE642', fontSize: 10, fontWeight: 700, letterSpacing: '0.08em' }}>{clientName.toUpperCase()} — {roleName.toUpperCase()}</div>

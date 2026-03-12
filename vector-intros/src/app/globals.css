@@ -27,10 +27,9 @@ select option {
 @media print {
   body {
     background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
   .no-print { display: none !important; }
-  #print-area {
-    box-shadow: none !important;
-    border-radius: 0 !important;
-  }
 }
